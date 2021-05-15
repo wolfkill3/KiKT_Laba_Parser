@@ -2,40 +2,59 @@ package com.company;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        boolean condition = true;
-        int labaNumber = 1;
-        Path folderPath = null; // Путь к папке
-        Path resultPath = null;
-        Scanner scanner = new Scanner(System.in);
+    public static Path folderPath = null; // Путь к папке
+    public static Path resultPath = null;
 
-        System.out.println("Выберите номер лабораторной работы, 1, 2 или 3");
-        while (condition) {
-            String value = scanner.nextLine();
-            if ("1".equals(value) || "2".equals(value) || "3".equals(value)) {
-                condition = false;
-                labaNumber = Integer.parseInt(value);
-            } else {
-                System.out.println("Некорректный ввод");
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        int labaNumber = getLabaNumber(scanner);
+        generatePaths(scanner);
+
+        switch (labaNumber) {
+            case 1 -> {
+                List<String> rpg = readDocument(resultPath, "RPG", "");
+                writeDocument(folderPath, "Laba_" + labaNumber + "_RPG_", rpg);
+            }
+            case 2 -> {
+                List<String> veMin = readDocument(resultPath, "VstE", "LCopt,");
+                List<String> vcMin = readDocument(resultPath, "VCmin", "VstE, LCopt,");
+                List<String> v = readDocument(resultPath, "V", "");
+                List<String> rg = new ArrayList<>();
+                for (int i = 0; i < v.size(); i++) {
+                    double Rg = (Double.parseDouble(vcMin.get(i)) + Double.parseDouble(veMin.get(i))) / Double.parseDouble(v.get(i));
+                    rg.add(String.valueOf(Rg));
+                }
+                writeDocument(folderPath, "Laba_" + labaNumber + "_VstE_", veMin);
+                writeDocument(folderPath, "Laba_" + labaNumber + "_Vcmin_", vcMin);
+                writeDocument(folderPath, "Laba_" + labaNumber + "_V_", v);
+                writeDocument(folderPath, "Laba_" + labaNumber + "_Rg_", rg);
+            }
+            case 3 -> {
+                List<String> rq = readDocument(resultPath, "Rq", "");
+                List<String> ro = readDocument(resultPath, "Ro", "");
+                writeDocument(folderPath, "Laba_" + labaNumber + "_Rq_", rq);
+                writeDocument(folderPath, "Laba_" + labaNumber + "_Ro_", ro);
             }
         }
+        System.out.println("Программа завершила работу, нажмите Enter для выхода");
+        scanner.nextLine();
+    }
 
-        condition = true;
+    private static void generatePaths(final Scanner scanner) {
         System.out.println("Введите путь до рабочей директории");
-        while (condition) {
+        while (true) {
             String value = scanner.nextLine();
-            folderPath = Paths.get(value);
+            folderPath = Path.of(value);
             if (folderPath.isAbsolute()) {
                 File file = new File(value);
                 if (file.isDirectory()) {
                     file = new File(value + "/result.txt");
                     if (file.exists()) {
-                        condition = false;
-                        resultPath = Paths.get(file.getAbsolutePath());
+                        resultPath = Path.of(file.getAbsolutePath());
+                        break;
                     } else {
                         System.out.println("В директории нет файла result.txt");
                     }
@@ -44,37 +63,18 @@ public class Main {
                 System.out.println("Введен некорректный путь");
             }
         }
+    }
 
-        switch (labaNumber) {
-            case 1:
-                List<String> rpg = readDocument(resultPath, "RPG", "");
-                writeDocument(folderPath, "Laba_" + labaNumber + "_RPG_", rpg);
-            break;
-            case 2:
-                List<String> veMin = readDocument(resultPath, "VstE", "LCopt,");
-                List<String> vcMin = readDocument(resultPath, "VCmin", "VstE, LCopt,");
-                List<String> v = readDocument(resultPath, "V", "");
-                List<String> rg = new ArrayList<>();
-
-                for (int i = 0; i < v.size(); i++) {
-                    double Rg = (Double.parseDouble(vcMin.get(i)) + Double.parseDouble(veMin.get(i))) / Double.parseDouble(v.get(i));
-                    rg.add(String.valueOf(Rg));
-                }
-
-                writeDocument(folderPath, "Laba_" + labaNumber + "_VstE_", veMin);
-                writeDocument(folderPath, "Laba_" + labaNumber + "_Vcmin_", vcMin);
-                writeDocument(folderPath, "Laba_" + labaNumber + "_V_", v);
-                writeDocument(folderPath, "Laba_" + labaNumber + "_Rg_", rg);
-            break;
-            case 3:
-                List<String> rq = readDocument(resultPath, "Rq", "");
-                List<String> ro = readDocument(resultPath, "Ro", "");
-                writeDocument(folderPath, "Laba_" + labaNumber + "_Rq_", rq);
-                writeDocument(folderPath, "Laba_" + labaNumber + "_Ro_", ro);
-            break;
+    public static int getLabaNumber(final Scanner scanner) {
+        System.out.println("Выберите номер лабораторной работы, 1, 2 или 3");
+        while (true) {
+            String value = scanner.nextLine();
+            if ("1".equals(value) || "2".equals(value) || "3".equals(value)) {
+                return Integer.parseInt(value);
+            } else {
+                System.out.println("Некорректный ввод");
+            }
         }
-        System.out.println("Программа завершила работу, нажмите Enter для выхода");
-        scanner.nextLine();
     }
 
     public static void writeDocument(Path folderPath, String prefix, List<String> stringList) throws IOException {
@@ -131,15 +131,15 @@ public class Main {
     }
 
     public static String permutationRegex(String regex) {
-        switch (regex) {
-            case "Rq": return "Rq = ";
-            case "Ro": return  "Ro";
-            case "VstE": return  "VstE: ";
-            case "VCmin": return  "VCmin: ";
-            case "V": return  "V, DeltaC: ";
-            case "RPG": return  "RPG:  ";
-            default: throw new IllegalStateException("Unexpected value: " + regex);
-        }
+        return switch (regex) {
+            case "Rq" -> "Rq = ";
+            case "Ro" -> "Ro";
+            case "VstE" -> "VstE: ";
+            case "VCmin" -> "VCmin: ";
+            case "V" -> "V, DeltaC: ";
+            case "RPG" -> "RPG:  ";
+            default -> throw new IllegalStateException("Unexpected value: " + regex);
+        };
     }
 
     public static String lineParser(String line, String positiveRegex) {
