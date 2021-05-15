@@ -19,15 +19,15 @@ public class Main {
                 writeDocument(folderPath, "Laba_" + labaNumber + "_RPG_", rpg);
             }
             case 2 -> {
-                List<String> veMin = readDocument(resultPath, "VstE", "LCopt,");
+                List<String> vstE = readDocument(resultPath, "VstE", "LCopt,");
                 List<String> vcMin = readDocument(resultPath, "VCmin", "VstE, LCopt,");
                 List<String> v = readDocument(resultPath, "V", "");
                 List<String> rg = new ArrayList<>();
                 for (int i = 0; i < v.size(); i++) {
-                    double Rg = (Double.parseDouble(vcMin.get(i)) + Double.parseDouble(veMin.get(i))) / Double.parseDouble(v.get(i));
+                    double Rg = (Double.parseDouble(vcMin.get(i)) + Double.parseDouble(vstE.get(i))) / Double.parseDouble(v.get(i));
                     rg.add(String.valueOf(Rg));
                 }
-                writeDocument(folderPath, "Laba_" + labaNumber + "_VstE_", veMin);
+                writeDocument(folderPath, "Laba_" + labaNumber + "_VstE_", vstE);
                 writeDocument(folderPath, "Laba_" + labaNumber + "_Vcmin_", vcMin);
                 writeDocument(folderPath, "Laba_" + labaNumber + "_V_", v);
                 writeDocument(folderPath, "Laba_" + labaNumber + "_Rg_", rg);
